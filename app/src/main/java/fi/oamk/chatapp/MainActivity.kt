@@ -170,8 +170,11 @@ class MainActivity : AppCompatActivity() {
                     R.color.white
                 )
             )
-            builder.setPositiveButton("OK") { dialog, which ->
+            builder.setPositiveButton("Login") { dialog, which ->
+                if(inputEmail.text.length > 1 && inputEmail.text.length > 1)
                 login(inputEmail.text.toString(), inputPw.text.toString())
+                else
+                    Toast.makeText(this@MainActivity, "Boxes not filled in", Toast.LENGTH_SHORT).show()
             }.show()
         }
     }
