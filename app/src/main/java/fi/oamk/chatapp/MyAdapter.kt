@@ -16,7 +16,7 @@ class MyAdapter(private val myDataset: ArrayList<Message>) :RecyclerView.Adapter
     override fun onBindViewHolder(holder: MyAdapter.MyViewHolder, position: Int) {
         holder.message.text = myDataset.get(position).message
         holder.author.text =
-            "by" + myDataset.get(position).author + "on" + myDataset.get(position).time
+            "by " + myDataset.get(position).author + " on " + myDataset.get(position).time
 
     }
 

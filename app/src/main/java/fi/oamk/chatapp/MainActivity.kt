@@ -70,17 +70,19 @@ class MainActivity : AppCompatActivity() {
 
         val messageListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-               if(snapshot.value != null){
-                   val messagesFromDatabase = (snapshot.value as HashMap<String,ArrayList<Message>>).get("messages")
-                   messages.clear()
+                if (snapshot.value != null) {
+                    val messagesFromDatabase =
+                        (snapshot.value as HashMap<String, ArrayList<Message>>).get("messages")
+                    messages.clear()
 
-                   if(messagesFromDatabase != null){
-                       for(i in 0..messagesFromDatabase.size-1){
-                           val message: Message = Message.from(messagesFromDatabase.get(i) as HashMap<String, String>)
-                           messages.add(message)
-                       }
-                   }
-               }
+                    if (messagesFromDatabase != null) {
+                        for (i in 0..messagesFromDatabase.size - 1) {
+                            val message: Message =
+                                Message.from(messagesFromDatabase.get(i) as HashMap<String, String>)
+                            messages.add(message)
+                        }
+                    }
+                }
                 rcMessagesList.adapter?.notifyDataSetChanged()
                 rcMessagesList.smoothScrollToPosition(rcMessagesList.adapter!!.itemCount)
             }
@@ -91,10 +93,7 @@ class MainActivity : AppCompatActivity() {
 
 
         }
-        if(currentUser != null)
-            edMessage.isVisible = true
-        else
-            edMessage.isVisible = false
+        edMessage.isVisible = currentUser != null
 
 
         database.addValueEventListener(messageListener)
@@ -111,16 +110,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun showSettings(){
+    fun showSettings() {
         val intent = Intent(this, Settings::class.java).apply {
-            putExtra("currentUser",currentUser)
+            putExtra("currentUser", currentUser)
         }
         startActivity(intent)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         val inflater = menuInflater
-        inflater.inflate(R.menu.app_menu,menu)
+        inflater.inflate(R.menu.app_menu, menu)
         return super.onCreateOptionsMenu(menu)
     }
 
@@ -128,7 +127,8 @@ class MainActivity : AppCompatActivity() {
         R.id.settings -> {
             this.showSettings()
             true
-        } else -> {
+        }
+        else -> {
             super.onOptionsItemSelected(item)
         }
 
@@ -143,13 +143,13 @@ class MainActivity : AppCompatActivity() {
             val linearLayout: LinearLayout = LinearLayout(this@MainActivity)
             linearLayout.orientation = LinearLayout.VERTICAL
 
-            linearLayout.setPadding(20,20,20,20)
+            linearLayout.setPadding(20, 20, 20, 20)
 
             val inputEmail: EditText = EditText(this@MainActivity)
             inputEmail.inputType =
                 InputType.TYPE_CLASS_TEXT// or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS or InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
             inputEmail.hint = "Enter email"
-            inputEmail.setPadding(0,0,0,25)
+            inputEmail.setPadding(0, 0, 0, 25)
             linearLayout.addView(inputEmail)
 
             val inputPw: EditText = EditText(this@MainActivity)
@@ -159,39 +159,44 @@ class MainActivity : AppCompatActivity() {
             //inputPw.setBackgroundColor(ContextCompat.getColor(applicationContext, R.color.white))
             linearLayout.addView(inputPw)
             builder.setView(linearLayout)
-            linearLayout.setBackgroundColor(ContextCompat.getColor(applicationContext, R.color.white))
+            linearLayout.setBackgroundColor(
+                ContextCompat.getColor(
+                    applicationContext,
+                    R.color.white
+                )
+            )
             builder.setPositiveButton("OK") { dialog, which ->
                 login(inputEmail.text.toString(), inputPw.text.toString())
             }.show()
         }
     }
 
-    fun login(email: String, password: String){
-        auth.signInWithEmailAndPassword(email,password)
-            .addOnCompleteListener(this){ task ->
-                if(task.isSuccessful) {
-                    Log.d(TAG,"sign in success")
+    fun login(email: String, password: String) {
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    Log.d(TAG, "sign in success")
                     currentUser = auth.currentUser
                     edMessage.isVisible = true
-                }
-                else {
+                } else {
                     Log.w(TAG, "sign in failure", task.exception)
-                    Toast.makeText(baseContext,"auth failure",
-                    Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        baseContext, "auth failure",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
     }
 
 
-
-
-
     @RequiresApi(Build.VERSION_CODES.O)
     fun addMessage() {
         val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")
-        val newMessage: Message = Message(edMessage.text.toString(),
+        val newMessage: Message = Message(
+            edMessage.text.toString(),
             currentUser?.email.toString(),
-            formatter.format(LocalDateTime.now()))
+            formatter.format(LocalDateTime.now())
+        )
 
         messages.add(newMessage)
         database.child("messages").setValue(messages)
@@ -199,11 +204,11 @@ class MainActivity : AppCompatActivity() {
         closeKeyBoard()
     }
 
-    private fun closeKeyBoard(){
+    private fun closeKeyBoard() {
         val view = this.currentFocus
-        if(view != null){
+        if (view != null) {
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.hideSoftInputFromWindow(view.windowToken,0)
+            imm.hideSoftInputFromWindow(view.windowToken, 0)
         }
     }
 }
