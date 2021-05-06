@@ -16,7 +16,13 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
+import androidx.core.view.isVisible
+import androidx.core.view.marginEnd
+import androidx.core.view.marginStart
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
@@ -25,9 +31,13 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import fi.oamk.chatapp.R.drawable.border_box_rounded
 import kotlinx.android.synthetic.main.activity_main.*
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
 class MainActivity : AppCompatActivity() {
     private val TAG: String = MainActivity::class.java.name
@@ -37,7 +47,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var rcMessagesList: RecyclerView
     private var currentUser: FirebaseUser? = null
-
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,6 +66,7 @@ class MainActivity : AppCompatActivity() {
             }
             return@setOnKeyListener false
         }
+
 
         val messageListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -81,15 +91,24 @@ class MainActivity : AppCompatActivity() {
 
 
         }
+        if(currentUser != null)
+            edMessage.isVisible = true
+        else
+            edMessage.isVisible = false
+
 
         database.addValueEventListener(messageListener)
         rcMessagesList.layoutManager = LinearLayoutManager(this)
         rcMessagesList.adapter = MyAdapter(messages)
+
     }
+
 
     override fun onStart() {
         super.onStart()
-        loginDialog()
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            loginDialog()
+        }
     }
 
     fun showSettings(){
@@ -115,6 +134,7 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     fun loginDialog() {
         val builder = AlertDialog.Builder(this)
 
@@ -123,19 +143,23 @@ class MainActivity : AppCompatActivity() {
             val linearLayout: LinearLayout = LinearLayout(this@MainActivity)
             linearLayout.orientation = LinearLayout.VERTICAL
 
+            linearLayout.setPadding(20,20,20,20)
+
             val inputEmail: EditText = EditText(this@MainActivity)
             inputEmail.inputType =
-                InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS or InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
+                InputType.TYPE_CLASS_TEXT// or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS or InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
             inputEmail.hint = "Enter email"
+            inputEmail.setPadding(0,0,0,25)
             linearLayout.addView(inputEmail)
 
             val inputPw: EditText = EditText(this@MainActivity)
             inputPw.inputType =
-                InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS or InputType.TYPE_TEXT_VARIATION_PASSWORD
-            inputPw.hint = "enter password"
+                InputType.TYPE_CLASS_TEXT //or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS or InputType.TYPE_TEXT_VARIATION_PASSWORD
+            inputPw.hint = "Enter password"
+            //inputPw.setBackgroundColor(ContextCompat.getColor(applicationContext, R.color.white))
             linearLayout.addView(inputPw)
             builder.setView(linearLayout)
-
+            linearLayout.setBackgroundColor(ContextCompat.getColor(applicationContext, R.color.white))
             builder.setPositiveButton("OK") { dialog, which ->
                 login(inputEmail.text.toString(), inputPw.text.toString())
             }.show()
@@ -148,6 +172,7 @@ class MainActivity : AppCompatActivity() {
                 if(task.isSuccessful) {
                     Log.d(TAG,"sign in success")
                     currentUser = auth.currentUser
+                    edMessage.isVisible = true
                 }
                 else {
                     Log.w(TAG, "sign in failure", task.exception)
