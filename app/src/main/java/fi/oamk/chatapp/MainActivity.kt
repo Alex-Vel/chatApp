@@ -93,6 +93,10 @@ class MainActivity : AppCompatActivity() {
 
 
         }
+
+
+
+
         edMessage.isVisible = currentUser != null
 
 
@@ -106,6 +110,7 @@ class MainActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            if(currentUser == null)
             loginDialog()
         }
     }

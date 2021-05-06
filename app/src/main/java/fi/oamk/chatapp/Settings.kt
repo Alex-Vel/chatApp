@@ -1,6 +1,7 @@
 package fi.oamk.chatapp
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
@@ -36,6 +37,12 @@ override fun onCreate(savedInstanceState: Bundle?){
     fun signOut(view: View) {
         FirebaseAuth.getInstance().signOut()
         tvEmail.setText("")
+
+        val intent = Intent(this, MainActivity::class.java).apply {
+            putExtra("currentUser", "")
+        }
+
+        startActivity(intent)
     }
 
 }
